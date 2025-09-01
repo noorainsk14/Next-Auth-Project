@@ -21,24 +21,24 @@ export const sendEmail = async({ email, emailType, userId }: SendEmailParams) =>
       await User.findByIdAndUpdate(objectId, {forgetPasswordToken: hashedToken, forgetpasswordTokenExpiry : Date.now() + 3600000});
     }
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: "maddison53@ethereal.email",
-        pass: "jn7jnAPss4f63QBp6D",
-      },
-    });
+    const transport = nodemailer.createTransport({
+  host: process.env.MAILTRAP_HOST,
+  port: Number(process.env.MAILTRAP_PORT),
+  auth: {
+    user: process.env.MAILTRAP_USER,
+    pass: process.env.MAILTRAP_PASS,
+  }});
 
     const mailOption = {
     from: 'noorain@noorain.ai',
     to: email,
     subject: emailType === "VERIFY" ? "Verify your email" : "Reset your password",
-    html: "<b>Hello world?</b>", // HTML body
+     html: `<p>Click <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}">here</a> to ${emailType === "VERIFY" ? "verify your email" : "reset your password"}
+            or copy and paste the link below in your browser. <br> ${process.env.DOMAIN}/verifyemail?token=${hashedToken}
+            </p>`
   }
 
-    const mailResopnse = await transporter.sendMail(mailOption);
+    const mailResopnse = await transport.sendMail(mailOption);
     return mailResopnse;
 
 
