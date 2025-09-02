@@ -7,7 +7,8 @@ import jwt from "jsonwebtoken";
 connectDB();
 
 export async function POST(request: NextRequest) {
-  const reqBody = await request.json();
+  try {
+    const reqBody = await request.json();
   const { password, email } = reqBody;
   console.log(reqBody);
 
@@ -46,4 +47,12 @@ export async function POST(request: NextRequest) {
     httpOnly: true,
   });
   return response;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    } else {
+      throw new Error("An unexpected error occurred");
+    }
+  }
+  
 }
